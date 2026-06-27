@@ -2,7 +2,7 @@
 
 Two minimal [RocketMod](https://github.com/RocketModFix/RocketModFix) plugins that read the **same non-public Unturned field two ways** — via reflection (the plain redist) and via the [`RocketModFix.Unturned.Redist`](https://github.com/RocketModFix/RocketModFix.Unturned.Redist) **`.Publicized`** package (a plain field access) — so you can see *why* publicizing is worth it.
 
-> These are example **consumer** plugins — their namespaces (`UnturnedRedistExample.*`) are what *you'd* write in your own plugin; they just **reference** the RocketModFix packages.
+> These are example **consumer** plugins — their namespaces (`UnturnedRedistExample.*`) are what *you'd* write in your own plugin; they just **reference** the RocketModFix packages. (The redist packages aren't RocketMod-specific — this example just happens to use RocketMod; they work in any Unturned project.)
 
 ## The two plugins
 
