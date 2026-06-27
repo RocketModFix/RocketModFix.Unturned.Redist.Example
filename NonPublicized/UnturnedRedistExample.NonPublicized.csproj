@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net461</TargetFramework>
+    <!-- No AllowUnsafeBlocks: this plugin only touches public Unturned API. -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- RocketMod API. Brings Rocket.Core (RocketPlugin, Logger) + Rocket.API. -->
+    <PackageReference Include="RocketModFix.Rocket.Unturned" Version="4.23.1" />
+
+    <!-- Plain (non-publicized) redist: only public Unturned members are visible.
+         Pinned to the SAME game build as ../Publicized (see that project). -->
+    <PackageReference Include="RocketModFix.Unturned.Redist.Server" Version="3.26.3.3" />
+
+    <!-- UnityEngine assemblies (Unturned types derive from MonoBehaviour). -->
+    <PackageReference Include="RocketModFix.UnityEngine.Redist" Version="2022.3.*" />
+
+    <!-- Lets `net461` build on Linux/macOS CI without a Windows targeting pack. -->
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+
+</Project>

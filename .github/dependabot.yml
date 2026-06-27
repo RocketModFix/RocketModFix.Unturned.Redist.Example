@@ -20,9 +20,11 @@ updates:
       - "dependencies"
       - "github-actions"
 
-  # NuGet packages referenced by the plugin (RocketMod + redist).
+  # NuGet packages referenced by the two plugin projects (RocketMod + redist).
   - package-ecosystem: "nuget"
-    directory: "/"
+    directories:
+      - "/Publicized"
+      - "/NonPublicized"
     schedule:
       interval: "weekly"
       day: "monday"
@@ -41,3 +43,8 @@ updates:
       - "nuget"
     allow:
       - dependency-type: "direct"
+    ignore:
+      # Both projects are pinned to the SAME game build so the publicized-vs-not
+      # contrast stays apples-to-apples. Bump these two by hand, together.
+      - dependency-name: "RocketModFix.Unturned.Redist.Server"
+      - dependency-name: "RocketModFix.Unturned.Redist.Server.Publicized"

@@ -12,13 +12,13 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      # Proves the plugin compiles against the .Publicized redist.
+      # Builds both plugins; proves each compiles against its redist variant.
       - name: Build
         run: dotnet build -c Release
 
-      - name: Upload plugin DLL
+      - name: Upload plugin DLLs
         uses: actions/upload-artifact@v4
         with:
           name: UnturnedRedistExample
-          path: bin/Release/net461/UnturnedRedistExample.dll
+          path: '**/bin/Release/net461/UnturnedRedistExample.*.dll'
           if-no-files-found: error
