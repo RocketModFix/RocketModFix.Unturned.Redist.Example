@@ -1,41 +1,50 @@
 # RocketModFix.Unturned.Redist.Example
 
-Two minimal [RocketMod](https://github.com/RocketModFix/RocketModFix) plugins that show how to consume the RocketModFix NuGet packages in an Unturned server plugin — and, side by side, exactly what the [`RocketModFix.Unturned.Redist`](https://github.com/RocketModFix/RocketModFix.Unturned.Redist) **`.Publicized`** package changes.
+Two minimal [RocketMod](https://github.com/RocketModFix/RocketModFix) plugins that read the **same non-public Unturned field two ways** — via reflection (the plain redist) and via the [`RocketModFix.Unturned.Redist`](https://github.com/RocketModFix/RocketModFix.Unturned.Redist) **`.Publicized`** package (a plain field access) — so you can see *why* publicizing is worth it.
 
 > These are example **consumer** plugins — their namespaces (`UnturnedRedistExample.*`) are what *you'd* write in your own plugin; they just **reference** the RocketModFix packages.
 
 ## The two plugins
 
-| Project | Redist package referenced | `AllowUnsafeBlocks` | Reads non-public members? |
-| --- | --- | --- | --- |
-| [`NonPublicized/`](NonPublicized) | `RocketModFix.Unturned.Redist.Server` | no | ❌ public API only |
-| [`Publicized/`](Publicized) | `RocketModFix.Unturned.Redist.Server.Publicized` | **yes** | ✅ |
+Both reference the **same game build** (`3.26.3.3`) and both read `SDG.Unturned.Provider.isDedicatedUGCInstalled` — a field that is **non-public** in the stock `Assembly-CSharp.dll`. The only difference is *how*:
 
-Both reference the **same game build** (`3.26.3.3`) and are otherwise identical RocketMod plugins. The redist package is the only meaningful difference — that's the whole lesson.
+| Project | Redist package | How it reads the non-public field |
+| --- | --- | --- |
+| [`NonPublicized/`](NonPublicized) | `RocketModFix.Unturned.Redist.Server` | **Reflection** — string-keyed, not compile-checked, slower |
+| [`Publicized/`](Publicized) | `RocketModFix.Unturned.Redist.Server.Publicized` (+ `AllowUnsafeBlocks`) | **Direct field access** — compile-checked, fast |
 
-### `NonPublicized` — public API only
+## Why publicize instead of reflection?
 
-Reads a **public** member and logs it. The non-public member is shown commented out, because it does **not** compile against the plain redist:
+A direct `Provider.isDedicatedUGCInstalled` **doesn't compile** against the plain redist — the package simply doesn't expose non-public members:
 
-```csharp
-Logger.Log($"... Provider.maxPlayers = {Provider.maxPlayers} (public API).");
-
-//   var ugc = Provider.isDedicatedUGCInstalled;
-//   // CS0117: 'Provider' does not contain a definition for 'isDedicatedUGCInstalled'
+```
+CS0117: 'Provider' does not contain a definition for 'isDedicatedUGCInstalled'
 ```
 
-The plain redist doesn't expose non-public members, so the compiler can't see the field at all.
-
-### `Publicized` — non-public members too
-
-Reads `SDG.Unturned.Provider.isDedicatedUGCInstalled` — **non-public** in the stock `Assembly-CSharp.dll`:
+So without publicizing, your only option is **reflection** ([`NonPublicized/`](NonPublicized/NonPublicizedExamplePlugin.cs)):
 
 ```csharp
-var ugcInstalled = Provider.isDedicatedUGCInstalled; // compiles via the .Publicized package
-Logger.Log($"... isDedicatedUGCInstalled = {ugcInstalled} ...");
+FieldInfo field = typeof(Provider).GetField(
+    "isDedicatedUGCInstalled", BindingFlags.NonPublic | BindingFlags.Static);
+bool ugcInstalled = (bool)field.GetValue(null);
 ```
 
-This compiles only because the `.Publicized` package rewrites that member to public, and runs only because the `.csproj` sets `<AllowUnsafeBlocks>true</AllowUnsafeBlocks>` (which lets Unturned's Mono runtime skip the access check).
+Downsides:
+- **Not compile-checked.** The member name is a string — a rename or typo compiles fine and throws at **runtime** (`NullReferenceException` on the missing `field`), on your live server.
+- **Harder to read.** No IntelliSense, casts everywhere, three lines for one read.
+- **Slower.** Every access pays a reflection lookup + boxing; even caching the `FieldInfo` stays indirect.
+
+The **`.Publicized`** package ([`Publicized/`](Publicized/PublicizedExamplePlugin.cs)) rewrites that member to public, so the same read is one normal line:
+
+```csharp
+bool ugcInstalled = Provider.isDedicatedUGCInstalled;
+```
+
+- **Compile-checked** — a rename breaks the *build*, not your server.
+- **Reads like ordinary code** — full IntelliSense, no casts.
+- **Plain field-access speed.**
+
+The one requirement: set `<AllowUnsafeBlocks>true</AllowUnsafeBlocks>` in the `.csproj`, which lets Unturned's Mono runtime skip the access check on the originally-private member.
 
 ## Packages used (both plugins)
 
@@ -59,14 +68,14 @@ Builds both projects (via `UnturnedRedistExample.sln`); the DLLs land in each pr
 
 1. Install [RocketModFix](https://github.com/RocketModFix/RocketModFix#installation) on an Unturned dedicated server (copy the `Rocket.Unturned` folder into `Modules/`) and start it once so it generates `Servers/<ServerID>/Rocket/`.
 2. Copy either built DLL into `Servers/<ServerID>/Rocket/Plugins/` (DLLs go directly in `Plugins/`, not a subfolder).
-3. Start the server and watch the console:
+3. Start the server and watch the console — both read the same value, the hard way and the easy way:
 
    ```
-   [UnturnedRedistExample.NonPublicized] Loaded. Provider.maxPlayers = 24 (public API).
-   [UnturnedRedistExample.Publicized] Loaded. Read NON-public Provider.isDedicatedUGCInstalled = False via the .Publicized redist.
+   [UnturnedRedistExample.NonPublicized] Loaded. Read non-public isDedicatedUGCInstalled = False via REFLECTION ...
+   [UnturnedRedistExample.Publicized]    Loaded. Read NON-public Provider.isDedicatedUGCInstalled = False via the .Publicized redist.
    ```
 
-The `Publicized` line is the key one: it proves the non-public member was read **at runtime** (so `AllowUnsafeBlocks` did its job). If publicization were broken you'd get a `FieldAccessException` ("is inaccessible") instead.
+Seeing those lines confirms each plugin **loaded** and read the non-public member **at runtime**. (For the publicized one, that also proves `AllowUnsafeBlocks` did its job — if publicization were broken you'd get a `FieldAccessException` instead.)
 
 ## License
 
