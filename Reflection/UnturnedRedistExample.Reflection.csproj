@@ -7,8 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- RocketMod API. Brings Rocket.Core (RocketPlugin, Logger) + Rocket.API. -->
+    <!-- RocketMod API. Brings Rocket.Core (RocketPlugin, Logger) + Rocket.API.
+         This is the RocketModFix fork; for official upstream Rocket, swap it for
+         the LDM redist below (use one or the other, never both). -->
     <PackageReference Include="RocketModFix.Rocket.Unturned" Version="4.23.1" />
+    <!-- <PackageReference Include="RocketModFix.LDM.Redist" Version="4.9.3.18" /> -->
 
     <!-- Plain (non-publicized) redist: non-public members aren't exposed, so this
          project reaches isDedicatedUGCInstalled via reflection. Pinned to the SAME

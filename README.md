@@ -50,11 +50,29 @@ The one requirement: set `<AllowUnsafeBlocks>true</AllowUnsafeBlocks>` in the `.
 
 | Package | Why |
 | --- | --- |
-| [`RocketModFix.Rocket.Unturned`](https://www.nuget.org/packages/RocketModFix.Rocket.Unturned) | RocketMod API — the `RocketPlugin` base class and `Logger`. |
+| [`RocketModFix.Rocket.Unturned`](https://www.nuget.org/packages/RocketModFix.Rocket.Unturned) | RocketMod API — the `RocketPlugin` base class and `Logger`. *(Or swap in [`RocketModFix.LDM.Redist`](https://github.com/RocketModFix/RocketModFix.LDM.Redist) for **official upstream** Rocket — see [below](#official-rocket-ldm-or-the-rocketmodfix-fork).)* |
 | [`RocketModFix.Unturned.Redist.Server`](https://www.nuget.org/packages/RocketModFix.Unturned.Redist.Server) / [`.Publicized`](https://www.nuget.org/packages/RocketModFix.Unturned.Redist.Server.Publicized) | Unturned's server assemblies. `.Publicized` additionally exposes non-public members. |
 | [`RocketModFix.UnityEngine.Redist`](https://www.nuget.org/packages/RocketModFix.UnityEngine.Redist) | UnityEngine assemblies — required because Unturned types derive from `UnityEngine.MonoBehaviour`. |
 
 See the [redist README](https://github.com/RocketModFix/RocketModFix.Unturned.Redist#using-a-publicized-package) for more on `.Publicized` and `AllowUnsafeBlocks`.
+
+## Official Rocket (LDM) or the RocketModFix fork?
+
+The `RocketPlugin` / `Logger` API can come from **either** of two packages — pick one (don't reference both; they ship the same `Rocket.*` assemblies):
+
+| Package | What it is |
+| --- | --- |
+| [`RocketModFix.Rocket.Unturned`](https://www.nuget.org/packages/RocketModFix.Rocket.Unturned) | The **RocketModFix fork** of Rocket — same API, plus bug fixes and features. Versioned like the fork (e.g. `4.23.1`). Used by both example projects above. |
+| [`RocketModFix.LDM.Redist`](https://github.com/RocketModFix/RocketModFix.LDM.Redist) | The **official upstream** Rocket — SDG's [Legally Distinct Missile][ldm], redistributed as-is. Zero-dependency (pair it with any Unturned redist). Versioned by Rocket's own version (e.g. `4.9.3.18`). |
+
+Both expose the same `Rocket.API` / `Rocket.Core` / `Rocket.Unturned` types, so switching is a one-line change in the `.csproj`:
+
+```xml
+<!-- Official upstream Rocket (LDM) instead of the RocketModFix fork: -->
+<PackageReference Include="RocketModFix.LDM.Redist" Version="4.9.3.18" />
+```
+
+[ldm]: https://github.com/SmartlyDressedGames/Legally-Distinct-Missile
 
 ## Build
 
