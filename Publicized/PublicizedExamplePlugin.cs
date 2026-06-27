@@ -5,9 +5,9 @@ using SDG.Unturned;
 namespace UnturnedRedistExample.Publicized
 {
     /// <summary>
-    /// Uses the <c>.Publicized</c> redist, so it can read members that are
-    /// non-public in the stock game. Compare with <c>../NonPublicized</c>, which
-    /// references the plain redist and can only touch public API.
+    /// Uses the <c>.Publicized</c> redist, so it reads members that are non-public
+    /// in the stock game as plain, compile-checked field accesses. Compare with
+    /// <c>../Reflection</c>, which reads the same field via reflection.
     /// </summary>
     public class PublicizedExamplePlugin : RocketPlugin
     {

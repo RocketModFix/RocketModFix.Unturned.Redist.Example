@@ -10,7 +10,7 @@ Both reference the **same game build** (`3.26.3.3`) and both read `SDG.Unturned.
 
 | Project | Redist package | How it reads the non-public field |
 | --- | --- | --- |
-| [`NonPublicized/`](NonPublicized) | `RocketModFix.Unturned.Redist.Server` | **Reflection** — string-keyed, not compile-checked, slower |
+| [`Reflection/`](Reflection) | `RocketModFix.Unturned.Redist.Server` | **Reflection** — string-keyed, not compile-checked, slower |
 | [`Publicized/`](Publicized) | `RocketModFix.Unturned.Redist.Server.Publicized` (+ `AllowUnsafeBlocks`) | **Direct field access** — compile-checked, fast |
 
 ## Why publicize instead of reflection?
@@ -21,7 +21,7 @@ A direct `Provider.isDedicatedUGCInstalled` **doesn't compile** against the plai
 CS0117: 'Provider' does not contain a definition for 'isDedicatedUGCInstalled'
 ```
 
-So without publicizing, your only option is **reflection** ([`NonPublicized/`](NonPublicized/NonPublicizedExamplePlugin.cs)):
+So without publicizing, your only option is **reflection** ([`Reflection/`](Reflection/ReflectionExamplePlugin.cs)):
 
 ```csharp
 FieldInfo field = typeof(Provider).GetField(
@@ -71,8 +71,8 @@ Builds both projects (via `UnturnedRedistExample.sln`); the DLLs land in each pr
 3. Start the server and watch the console — both read the same value, the hard way and the easy way:
 
    ```
-   [UnturnedRedistExample.NonPublicized] Loaded. Read non-public isDedicatedUGCInstalled = False via REFLECTION ...
-   [UnturnedRedistExample.Publicized]    Loaded. Read NON-public Provider.isDedicatedUGCInstalled = False via the .Publicized redist.
+   [UnturnedRedistExample.Reflection] Loaded. Read non-public isDedicatedUGCInstalled = False via REFLECTION ...
+   [UnturnedRedistExample.Publicized] Loaded. Read NON-public Provider.isDedicatedUGCInstalled = False via the .Publicized redist.
    ```
 
 Seeing those lines confirms each plugin **loaded** and read the non-public member **at runtime**. (For the publicized one, that also proves `AllowUnsafeBlocks` did its job — if publicization were broken you'd get a `FieldAccessException` instead.)

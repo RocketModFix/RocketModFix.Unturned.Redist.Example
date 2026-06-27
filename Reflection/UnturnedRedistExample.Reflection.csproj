@@ -2,15 +2,17 @@
 
   <PropertyGroup>
     <TargetFramework>net461</TargetFramework>
-    <!-- No AllowUnsafeBlocks: this plugin only touches public Unturned API. -->
+    <!-- No AllowUnsafeBlocks needed: reflection reaches the non-public member at
+         runtime; there's no compile-time access to guard. -->
   </PropertyGroup>
 
   <ItemGroup>
     <!-- RocketMod API. Brings Rocket.Core (RocketPlugin, Logger) + Rocket.API. -->
     <PackageReference Include="RocketModFix.Rocket.Unturned" Version="4.23.1" />
 
-    <!-- Plain (non-publicized) redist: only public Unturned members are visible.
-         Pinned to the SAME game build as ../Publicized (see that project). -->
+    <!-- Plain (non-publicized) redist: non-public members aren't exposed, so this
+         project reaches isDedicatedUGCInstalled via reflection. Pinned to the SAME
+         game build as ../Publicized so only the technique differs. -->
     <PackageReference Include="RocketModFix.Unturned.Redist.Server" Version="3.26.3.3" />
 
     <!-- UnityEngine assemblies (Unturned types derive from MonoBehaviour). -->

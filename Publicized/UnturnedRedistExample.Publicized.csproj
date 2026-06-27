@@ -12,9 +12,8 @@
     <PackageReference Include="RocketModFix.Rocket.Unturned" Version="4.23.1" />
 
     <!-- Publicized: Unturned's assemblies with non-public members rewritten to
-         public, so this plugin can read them. Pinned to the SAME game build as
-         ../NonPublicized so the ONLY difference between the two projects is
-         publicization (bump both together). -->
+         public, so this plugin can read them directly. Pinned to the SAME game
+         build as ../Reflection so only the technique differs (bump both together). -->
     <PackageReference Include="RocketModFix.Unturned.Redist.Server.Publicized" Version="3.26.3.3" />
 
     <!-- UnityEngine assemblies (Unturned types derive from MonoBehaviour). -->

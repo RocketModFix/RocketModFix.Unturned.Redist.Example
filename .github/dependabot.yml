@@ -24,7 +24,7 @@ updates:
   - package-ecosystem: "nuget"
     directories:
       - "/Publicized"
-      - "/NonPublicized"
+      - "/Reflection"
     schedule:
       interval: "weekly"
       day: "monday"
@@ -44,7 +44,7 @@ updates:
     allow:
       - dependency-type: "direct"
     ignore:
-      # Both projects are pinned to the SAME game build so the publicized-vs-not
-      # contrast stays apples-to-apples. Bump these two by hand, together.
+      # Both projects are pinned to the SAME game build so the comparison stays
+      # apples-to-apples. Bump these two by hand, together.
       - dependency-name: "RocketModFix.Unturned.Redist.Server"
       - dependency-name: "RocketModFix.Unturned.Redist.Server.Publicized"
